@@ -1,19 +1,8 @@
 const http = require('node:http');
-const { execFileSync } = require('node:child_process');
+const { getEnvironmentVersions } = require('./scripts/environment');
 
 const host = process.env.HOST || '127.0.0.1';
 const port = Number(process.env.PORT) || 3000;
-
-function getCommandVersion(command, args) {
-  try {
-    return execFileSync(command, args, {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
-  } catch {
-    return 'Not found';
-  }
-}
 
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (character) => ({
@@ -26,11 +15,7 @@ function escapeHtml(value) {
 }
 
 function renderPage() {
-  const environment = [
-    ['Node.js', process.version],
-    ['npm', getCommandVersion('npm', ['--version'])],
-    ['Python', getCommandVersion('python3', ['--version'])],
-  ];
+  const environment = getEnvironmentVersions();
 
   const versionCards = environment.map(([name, version]) => `
         <li>
